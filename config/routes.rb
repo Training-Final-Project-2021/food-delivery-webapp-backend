@@ -28,6 +28,7 @@ Rails.application.routes.draw do
         post "sign_in", to: "sessions#create"
         delete "sign_out", to: "sessions#destroy"
         get "is_logged_in", to: "sessions#is_logged_in?"
+        get "hotels_list", to: "hotels#hotels_list"
       end
     end
 

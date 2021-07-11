@@ -10,5 +10,9 @@ class Hotel < ApplicationRecord
     update_attribute(:authentication_token, token)
   end
 
-  has_many :items, :carts, :orders_lists, :pickup_tables, :orders_histories
+  has_many :items
+  has_many :carts
+  has_many :orders_lists
+  has_many :pickup_tables
+  has_many :orders_histories
 end

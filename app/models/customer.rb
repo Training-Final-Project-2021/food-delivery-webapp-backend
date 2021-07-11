@@ -10,6 +10,8 @@ class Customer < ApplicationRecord
     update_attribute(:authentication_token, token)
   end
 
-  has_many :items, :orders_histories
-  has_one :cart, :orders_list
+  has_many :items
+  has_many :orders_histories
+  has_one :cart
+  has_one :orders_list
 end
