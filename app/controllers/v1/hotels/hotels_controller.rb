@@ -8,7 +8,7 @@ class V1::Hotels::HotelsController < ApplicationController
         else
             render json: {
                 messages: "Unable to fetch hotels"
-            }, status: :unprocessable_entity
+            }, status: :internal_server_error
         end
     end
 
