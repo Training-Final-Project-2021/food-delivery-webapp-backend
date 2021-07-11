@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-class DeviseCreateDeliveries < ActiveRecord::Migration[6.1]
+class DeviseCreateAdmins < ActiveRecord::Migration[6.1]
   def change
-    create_table :deliveries do |t|
+    create_table :admins do |t|
       ## Database authenticatable
       t.string :email,              null: false, default: ""
       t.string :encrypted_password, null: false, default: ""
@@ -13,13 +13,6 @@ class DeviseCreateDeliveries < ActiveRecord::Migration[6.1]
 
       ## Rememberable
       t.datetime :remember_created_at
-
-      ## Extra columns
-      t.string :name
-      t.string :phone_no
-      t.string :status
-
-      ## 
 
       ## Trackable
       # t.integer  :sign_in_count, default: 0, null: false
@@ -43,9 +36,9 @@ class DeviseCreateDeliveries < ActiveRecord::Migration[6.1]
       t.timestamps null: false
     end
 
-    add_index :deliveries, :email,                unique: true
-    add_index :deliveries, :reset_password_token, unique: true
-    # add_index :deliveries, :confirmation_token,   unique: true
-    # add_index :deliveries, :unlock_token,         unique: true
+    add_index :admins, :email,                unique: true
+    add_index :admins, :reset_password_token, unique: true
+    # add_index :admins, :confirmation_token,   unique: true
+    # add_index :admins, :unlock_token,         unique: true
   end
 end

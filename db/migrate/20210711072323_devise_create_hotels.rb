@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-class DeviseCreateDeliveries < ActiveRecord::Migration[6.1]
+class DeviseCreateHotels < ActiveRecord::Migration[6.1]
   def change
-    create_table :deliveries do |t|
+    create_table :hotels do |t|
       ## Database authenticatable
       t.string :email,              null: false, default: ""
       t.string :encrypted_password, null: false, default: ""
@@ -16,10 +16,11 @@ class DeviseCreateDeliveries < ActiveRecord::Migration[6.1]
 
       ## Extra columns
       t.string :name
-      t.string :phone_no
       t.string :status
+      t.string :address
+      t.string :discription
+      t.string :rating
 
-      ## 
 
       ## Trackable
       # t.integer  :sign_in_count, default: 0, null: false
@@ -43,9 +44,9 @@ class DeviseCreateDeliveries < ActiveRecord::Migration[6.1]
       t.timestamps null: false
     end
 
-    add_index :deliveries, :email,                unique: true
-    add_index :deliveries, :reset_password_token, unique: true
-    # add_index :deliveries, :confirmation_token,   unique: true
-    # add_index :deliveries, :unlock_token,         unique: true
+    add_index :hotels, :email,                unique: true
+    add_index :hotels, :reset_password_token, unique: true
+    # add_index :hotels, :confirmation_token,   unique: true
+    # add_index :hotels, :unlock_token,         unique: true
   end
 end
