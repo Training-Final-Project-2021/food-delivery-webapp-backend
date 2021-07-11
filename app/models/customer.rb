@@ -9,4 +9,7 @@ class Customer < ApplicationRecord
     token = Customer.generate_unique_secure_token
     update_attribute(:authentication_token, token)
   end
+
+  has_many :items, :orders_histories
+  has_one :cart, :orders_list
 end

@@ -9,4 +9,6 @@ class Hotel < ApplicationRecord
     token = Hotel.generate_unique_secure_token
     update_attribute(:authentication_token, token)
   end
+
+  has_many :items, :carts, :orders_lists, :pickup_tables, :orders_histories
 end
