@@ -54,7 +54,7 @@ class V1::Customers::CustomersController < ApplicationController
             render json: {
                 messages: "Failed to fetch your cart!",
                 is_success: false,
-                carts: {}
+                carts: []
             }, state: :internal_server_error
         end
     end
@@ -82,13 +82,13 @@ class V1::Customers::CustomersController < ApplicationController
     end
 
     def cancel_order
-        id = params[:order_id]
-        order = OrdersList.find(id)
+        order_id = params[:order_id]
+        order = OrdersList.find(order_id)
         if order
             OrdersList.where(id: order_id).update_all(status: "Cancelled by user")
             render json: {
                 messages: "Order cancelled by user!",
-                data: order
+                orders: order
             }, status: :ok
         else
             render json: {
