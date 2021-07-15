@@ -43,6 +43,7 @@ Rails.application.routes.draw do
         put "verify_order", to: "hotels#verify_order"
         delete "cancel_order", to: "hotels#cancel_order"
         put "assign_delivery", to: "hotels#assign_delivery"
+        get "show_pending_order_status", to: "hotels#show_pending_order_status"
         get "show_all_order_status", to: "hotels#show_all_order_status"
       end
     end
