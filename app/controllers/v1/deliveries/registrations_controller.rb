@@ -7,16 +7,16 @@ class V1::Deliveries::RegistrationsController < ApplicationController
         if delivery.save
             render json: {
                 messages: "Signed up successfully!",
+                logged_in: true,
                 is_success: true,
-                data: {
-                    delivery: delivery,
-                }
+                user_type: "delivery",
+                delivery: delivery
             }, status: :created
         else
             render json: {
                 messages: "Something wrong!",
                 is_success: false,
-                data: {}
+                delivery: {}
             }, status: :unprocessable_entity
             
         end
@@ -24,7 +24,7 @@ class V1::Deliveries::RegistrationsController < ApplicationController
 
     private
     def delivery_params
-        params.require(:delivery).permit(:email, :password, :password_confirmation, :name, :phone_no)
+        params.require(:delivery).permit(:email, :password, :password_confirmation, :name, :phone_no, :status)
     end
 
     def ensure_params_exists

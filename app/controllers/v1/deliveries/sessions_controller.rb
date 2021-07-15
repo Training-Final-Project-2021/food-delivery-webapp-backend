@@ -1,4 +1,4 @@
-class V1::Deliveries::SessionController < ApplicationController
+class V1::Deliveries::SessionsController < ApplicationController
     before_action :sign_in_params, only: :create
     before_action :load_delivery_user, only: :create
     before_action :valid_token, only: [:destroy, :is_logged_in?]
@@ -11,14 +11,15 @@ class V1::Deliveries::SessionController < ApplicationController
                 messages: "Signed in successfully!",
                 logged_in: true,
                 is_success: true,
-                data: @delivery
+                user_type: "delivery",
+                delivery: @delivery
             }, status: :ok
         else
             render json: {
                 messages: "Unautherized",
                 logged_in: false,
                 is_success: false,
-                data: {}
+                delivery: {}
             }, status: :unauthorized
         end
     end
@@ -37,12 +38,14 @@ class V1::Deliveries::SessionController < ApplicationController
         if @delivery
             render json: {
                 logged_in: true,
-                data: @delivery
+                is_success: true,
+                user_type: "delivery",
+                delivery: @delivery
             }, status: :ok
         else
             render json: {
                 logged_in: false,
-                data: {}
+                delivery: {}
             }, status: :unprocessable_entity
         end
     end

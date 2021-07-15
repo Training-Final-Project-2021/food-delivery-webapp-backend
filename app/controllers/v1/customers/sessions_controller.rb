@@ -11,14 +11,15 @@ class V1::Customers::SessionsController < ApplicationController
                 messages: "Signed in successfully!",
                 logged_in: true,
                 is_success: true,
-                data: @customer
+                user_type: "customer",
+                customer: @customer
             }, status: :ok
         else
             render json: {
                 messages: "Unautherized",
                 logged_in: false,
                 is_success: false,
-                data: {}
+                customer: {}
             }, status: :unauthorized
         end
     end
@@ -29,7 +30,8 @@ class V1::Customers::SessionsController < ApplicationController
         render json: {
             messages: "signed out successfully!",
             is_success: true,
-            data: {}
+            logged_in: false,
+            customer: {}
         }, status: :ok 
     end
 
@@ -37,12 +39,15 @@ class V1::Customers::SessionsController < ApplicationController
         if @customer
             render json: {
                 logged_in: true,
-                data: @customer
+                is_success: true,
+                customer: @customer,
+                user_type: "customer"
             }, status: :ok
         else
             render json: {
                 logged_in: false,
-                data: {}
+                is_success: false,
+                customer: {}
             }, status: :unprocessable_entity
         end
     end
@@ -60,7 +65,7 @@ class V1::Customers::SessionsController < ApplicationController
             render json: {
                 messages: "Cannot get customer user!",
                 is_success: false,
-                data: {}
+                customer: {}
             }, status: :unauthorized
         end
     end
@@ -73,7 +78,7 @@ class V1::Customers::SessionsController < ApplicationController
             render json: {
                 messages: "Invalid token!",
                 is_success: false,
-                data: {}
+                customer: {}
             }, status: :unauthorized
         end
     end

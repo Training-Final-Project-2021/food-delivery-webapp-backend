@@ -11,14 +11,15 @@ class V1::Hotels::SessionsController < ApplicationController
                 messages: "Signed in successfully!",
                 logged_in: true,
                 is_success: true,
-                data: @hotel
+                hotel: @hotel,
+                user_type: "hotel"
             }, status: :ok
         else
             render json: {
                 messages: "Unautherized",
                 logged_in: false,
                 is_success: false,
-                data: {}
+                hotel: {}
             }, status: :unauthorized
         end
     end
@@ -29,7 +30,7 @@ class V1::Hotels::SessionsController < ApplicationController
         render json: {
             messages: "signed out successfully!",
             is_success: true,
-            data: {}
+            hotel: {}
         }, status: :ok 
     end
 
@@ -37,7 +38,8 @@ class V1::Hotels::SessionsController < ApplicationController
         if @hotel
             render json: {
                 logged_in: true,
-                data: @hotel
+                hotel: @hotel,
+                user_type: "hotel"
             }, status: :ok
         else
             render json: {
@@ -53,7 +55,7 @@ class V1::Hotels::SessionsController < ApplicationController
     end
 
     def load_hotel_user
-        @hotel = hotel.find_for_database_authentication(email: sign_in_params[:email])
+        @hotel = Hotel.find_for_database_authentication(email: sign_in_params[:email])
         if @hotel
             return @hotel
         else

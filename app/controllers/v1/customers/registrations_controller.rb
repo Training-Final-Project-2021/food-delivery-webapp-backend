@@ -8,9 +8,8 @@ class V1::Customers::RegistrationsController < ApplicationController
             render json: {
                 messages: "Signed up successfully!",
                 is_success: true,
-                data: {
-                    customer: customer,
-                }
+                user_type: "customer",
+                customer: customer,
             }, status: :created
         else
             render json: {
@@ -24,7 +23,7 @@ class V1::Customers::RegistrationsController < ApplicationController
 
     private
     def customer_params
-        params.require(:customer).permit(:email, :password, :password_confirmation, :name, :phone_no)
+        params.require(:customer).permit(:email, :password, :password_confirmation, :name, :phone_no, :address)
     end
 
     def ensure_params_exists

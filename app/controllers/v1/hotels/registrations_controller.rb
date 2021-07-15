@@ -8,9 +8,9 @@ class V1::Hotels::RegistrationsController < ApplicationController
             render json: {
                 messages: "Signed up successfully!",
                 is_success: true,
-                data: {
-                    hotel: hotel,
-                }
+                logged_in: true,
+                hotel: hotel,
+                user_type: "hotel"
             }, status: :created
         else
             render json: {
@@ -24,7 +24,7 @@ class V1::Hotels::RegistrationsController < ApplicationController
 
     private
     def hotel_params
-        params.require(:hotel).permit(:email, :password, :password_confirmation, :name)
+        params.require(:hotel).permit(:email, :password, :password_confirmation, :name, :status, :address, :discription)
     end
 
     def ensure_params_exists

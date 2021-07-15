@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_11_083455) do
+ActiveRecord::Schema.define(version: 2021_07_14_154102) do
 
   create_table "admins", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -33,6 +33,9 @@ ActiveRecord::Schema.define(version: 2021_07_11_083455) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "item_quantity"
+    t.string "item_name"
+    t.string "item_price"
+    t.string "total_price"
     t.index ["customer_id"], name: "index_carts_on_customer_id"
     t.index ["hotel_id"], name: "index_carts_on_hotel_id"
     t.index ["item_id"], name: "index_carts_on_item_id"
@@ -99,6 +102,7 @@ ActiveRecord::Schema.define(version: 2021_07_11_083455) do
     t.string "rating"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "category"
     t.index ["hotel_id"], name: "index_items_on_hotel_id"
   end
 
@@ -122,6 +126,9 @@ ActiveRecord::Schema.define(version: 2021_07_11_083455) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "status"
     t.integer "item_quantity"
+    t.string "item_name"
+    t.string "item_price"
+    t.string "total_price"
     t.index ["customer_id"], name: "index_orders_lists_on_customer_id"
     t.index ["hotel_id"], name: "index_orders_lists_on_hotel_id"
     t.index ["item_id"], name: "index_orders_lists_on_item_id"

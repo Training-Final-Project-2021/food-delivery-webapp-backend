@@ -1,49 +1,26 @@
 class V1::Customers::CustomersController < ApplicationController
-    before_action :authenticate_customer!
-    @customer_id = current_customer.id
-
-    def show_hotels_list
-        hotel = Hotel.select(:id, :name, :address, :status, :discription, :rating)
-        if hotel
-            render json: {
-                hotels: hotel
-            }, status: :ok
-        else
-            render json: {
-                messages: "Unable to fetch hotels",
-                errors: hotel.errors.full_messages
-            }, status: :internal_server_error
-        end
-    end
-
-    def show_menu
-        hotel_id = params[:hotel_id]
-        menu = Item.find_by(hotel_id: hotel_id)
-        if menu
-            render json: {
-                menu: menu
-            }, status: :ok
-        else
-            render json: {
-                messages: "Unable to fetch menu",
-                errors: menu.errors.full_messages
-            }, status: :internal_server_error
-        end
-    end
+    before_action :valid_token
+    
+    # def give_rating
+    #     item_id = params[:item_id]
+    #     rating = params[:rating]
+    #     # Item.find(item_id).update(rating: rating)
+    # end
 
     def add_to_cart
-        order = Cart.new(customer_id: @customer_id, hotel_id: params[:hotel_id], item_id: params[:item_id], item_quantity: params[:quantity] )
+        order = Cart.create(customer_id: @customer.id, hotel_id: params[:cart][:hotel_id], item_id: params[:cart][:item_id],
+                             item_quantity: params[:cart][:item_quantity], item_name: params[:cart][:item_name], item_price: params[:cart][:item_price], total_price: params[:cart][:total_price] )
         if order
             render json: {
                 messages: "Successfully added to cart!",
                 is_success: true,
-                data: order
+                orders: order
             }, status: :created
         else
             render json: {
                 messages: "Unable to add",
                 is_success: false,
-                data: {}
+                orders: {}
             }, status: :internal_server_error
         end
     end
@@ -55,29 +32,51 @@ class V1::Customers::CustomersController < ApplicationController
             Item.find(id).destroy
             render json: {
                 messages: "Item removed successfully!",
-                data: item
+                items: item
             }, status: :ok
         else
             render json: {
-                messages: "Something went wrong!"
-                data: {}
+                messages: "Something went wrong!",
+                items: {}
             }, status: :internal_server_error
         end
     end
 
-    def confirm_order
-        orders = Cart.where(customer_id: @customer_id)
-        if orders
-            orders.each do |order|
-                OrdersList.create(customer_id: order.customer_id, hotel_id: order.hotel_id, item_id: order.item_id, item_quantity: order.item_quantity, status: "Pending")
-            end
+    def show_cart
+        carts = Cart.where(customer_id: @customer.id)
+        if carts
             render json: {
-                messages: "Successfully order, please wait until the restaurant confirms it!",
-                data: orders
+                messages: "Fetched cart successfully!",
+                is_success: true,
+                carts: carts,
             }, status: :ok
         else
             render json: {
-                messages: "Unable to process your order!"
+                messages: "Failed to fetch your cart!",
+                is_success: false,
+                carts: {}
+            }, state: :internal_server_error
+        end
+    end
+
+    def create_order
+        orders = Cart.where(customer_id: @customer.id)
+        if orders
+            orders.each do |order|
+                OrdersList.create(customer_id: order.customer_id, hotel_id: order.hotel_id, item_id: order.item_id, item_quantity: order.item_quantity, status: "Pending",
+                                    item_quantity: order.item_quantity, item_name: order.item_name, item_price: order.item_price, total_price: order.total_price)
+                Cart.where(customer_id: @customer.id).destroy_all
+            end
+            render json: {
+                messages: "Order placed successfully, please wait until the restaurant confirms it!",
+                is_success: true,
+                carts: {},
+                orders: orders
+            }, status: :ok
+        else
+            render json: {
+                messages: "Unable to process your order!",
+                is_success: false
             }, status: :internal_server_error
         end
     end
@@ -88,7 +87,7 @@ class V1::Customers::CustomersController < ApplicationController
         if order
             OrdersList.find(id).destroy
             render json: {
-                messages: "Order cancelled!",
+                messages: "Order cancelled by user!",
                 data: order
             }, status: :ok
         else
@@ -97,21 +96,74 @@ class V1::Customers::CustomersController < ApplicationController
                 data: {}
             }, status: :internal_server_error
         end
+    end
+
+    def show_my_orders
+        my_orders = OrderList.where(customer_id: @customer.id)
+        if my_orders
+            render json: {
+                messages: "Successfully fetched your orders!",
+                is_success: true,
+                orders: my_orders
+            }, status: :ok
+        else
+            render json: {
+                messages: "Unable to fetch your "
+            }
+        end
 
     end
 
     def view_order_history
-        order_history = OrdersHistory.where(customer_id: @customer_id)
+        order_data = OrdersHistory.where(customer_id: @customer.id)
         if order_history
             render json: {
-                data: order_history
+                data: order_data
             }, status: :ok
         else
             render json: {
-                messages: "Unable to retrieve orders history!"
+                messages: "Unable to retrieve orders history!",
                 data: {}
             }, status: :internal_server_error
         end
     end
 
+    def reorder
+        order_id = params[:order_id]
+        order = OrdersList.find(id: order_id)
+        if orders
+            OrdersList.create(customer_id: order.customer_id, hotel_id: order.hotel_id, item_id: order.item_id,
+                                item_quantity: order.item_quantity, status: "Pending", item_name: order.item_name, item_price: order.item_price, total_price: order.total_price)
+            render json: {
+                messages: "Successfully order, please wait until the restaurant confirms it!",
+                orders: orders
+            }, status: :ok
+        else
+            render json: {
+                messages: "Unable to process your order!"
+            }, status: :internal_server_error
+        end
+    end
+
+    def confirm_delivery
+        order_id = params[:order_id]
+        OrderList.find(order_id).where(status: "Delivered").update_all(status: "Received")
+        render json: {
+            messages: "Order received by customer, Enjoy your meal!"
+        }, status: :ok
+    end
+
+    private
+    def valid_token
+        @customer = Customer.find_by(authentication_token: request.headers["AUTH-TOKEN"])
+        if @customer
+            return @customer
+        else
+            render json: {
+                messages: "Invalid token!",
+                is_success: false,
+                data: {}
+            }, status: :unauthorized
+        end
+    end
 end
