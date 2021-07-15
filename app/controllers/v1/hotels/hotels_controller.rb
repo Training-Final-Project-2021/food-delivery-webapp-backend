@@ -35,11 +35,11 @@ class V1::Hotels::HotelsController < ApplicationController
     end
 
     def show_all_orders_status
-        orders = OrderList.find_by(hotel_id: @hotel.id)
+        orders = OrdersList.where(hotel_id: @hotel.id)
         if orders
             render json: {
-                messages: "Pending orders fetched successfully!",
-                is_sucess: true,
+                messages: "Orders fetched successfully!",
+                is_success: true,
                 orders: orders
             }, status: :ok
         else
@@ -51,12 +51,29 @@ class V1::Hotels::HotelsController < ApplicationController
         end
     end
 
-    def show_pending_order_status
-        orders = OrderList.find_by(hotel_id: @hotel.id).where(status: "Pending")
+    def show_pending_orders_status
+        orders = OrdersList.where(hotel_id: @hotel.id, status: "Pending")
         if orders
             render json: {
                 messages: "Pending orders fetched successfully!",
-                is_sucess: true,
+                is_success: true,
+                orders: orders
+            }, status: :ok
+        else
+            render json: {
+                messages: "Unable to fetch",
+                is_success: false,
+                orders: {}
+            }, status: :internal_server_error
+        end
+    end
+
+    def show_confirmed_orders_status
+        orders = OrdersList.where(hotel_id: @hotel.id, status: "Confirmed")
+        if orders
+            render json: {
+                messages: "Confirmed orders fetched successfully!",
+                is_success: true,
                 orders: orders
             }, status: :ok
         else
@@ -70,7 +87,7 @@ class V1::Hotels::HotelsController < ApplicationController
 
     def verify_order
         order_id = params[:order_id]
-        OrdersList.find(order_id).where(status: "Pending").update_all(status: "Confirmed")
+        OrdersList.where(id: order_id, status: "Pending").update_all(status: "Confirmed")
         render json: {
             messages: "Your order is confirmed from hotel!"
         }, status: :ok
@@ -78,7 +95,7 @@ class V1::Hotels::HotelsController < ApplicationController
 
     def cancel_order
         order_id = params[:order_id]
-        OrderList.find(order_id).destroy
+        OrdersList.where(id: order_id).update_all(status: "Cancelled by hotel")
         render json: {
             messages: "Order cancelled from hotel!"
         }, status: :ok
@@ -86,8 +103,7 @@ class V1::Hotels::HotelsController < ApplicationController
 
     def assign_delivery
         order_id = params[:order_id]
-        OrderList.find(order_id).where(status: "Confirmed").update_all(status: "Ready")
-        orders = Pickup
+        OrdersList.where(id: order_id, status: "Confirmed").update_all(status: "Ready")
         render json: {
             messages: "The order will be delivered soon....."
         }, status: :ok

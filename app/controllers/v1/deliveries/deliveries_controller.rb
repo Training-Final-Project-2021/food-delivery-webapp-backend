@@ -1,8 +1,8 @@
 class V1::Deliveries::DeliveriesController < ApplicationController
     before_action :valid_token
-    
-    def fetch_ready_order
-        orders = OrderList.where(status: "Ready")
+
+    def fetch_ready_orders
+        orders = OrdersList.where(status: "Ready")
         if orders
             render json: {
                 messages: "Successfully fetch ready orders!",
@@ -20,7 +20,7 @@ class V1::Deliveries::DeliveriesController < ApplicationController
 
     def deliver_order
         order_id = params[:order_id]
-        OrderList.find(order_id).where(status: "Ready").update_all(status: "Delivered")
+        OrdersList.where(id: order_id, status: "Ready").update_all(status: "Delivered")
     end
 
     private

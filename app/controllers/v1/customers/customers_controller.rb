@@ -85,7 +85,7 @@ class V1::Customers::CustomersController < ApplicationController
         id = params[:order_id]
         order = OrdersList.find(id)
         if order
-            OrdersList.find(id).destroy
+            OrdersList.where(id: order_id).update_all(status: "Cancelled by user")
             render json: {
                 messages: "Order cancelled by user!",
                 data: order
@@ -98,45 +98,48 @@ class V1::Customers::CustomersController < ApplicationController
         end
     end
 
-    def show_my_orders
-        my_orders = OrderList.where(customer_id: @customer.id)
-        if my_orders
+    def view_order_status
+        orders = OrdersList.where(customer_id: @customer.id)
+        if orders
             render json: {
                 messages: "Successfully fetched your orders!",
                 is_success: true,
-                orders: my_orders
+                orders: orders
             }, status: :ok
         else
             render json: {
-                messages: "Unable to fetch your "
-            }
+                messages: "Unable to fetch your ",
+                is_success: false,
+                orders: {}
+            }, status: :internal_server_error
         end
-
     end
 
     def view_order_history
-        order_data = OrdersHistory.where(customer_id: @customer.id)
-        if order_history
+        orders = OrdersList.where(customer_id: @customer.id, status: "Received")
+        if orders
             render json: {
-                data: order_data
+                messages: "Successfully fetched orders history!",
+                is_success: true,
+                orders: orders
             }, status: :ok
         else
             render json: {
-                messages: "Unable to retrieve orders history!",
-                data: {}
+                messages: "Unable to fetch orders history!",
+                is_success: true,
+                orders: {}
             }, status: :internal_server_error
         end
     end
 
     def reorder
         order_id = params[:order_id]
-        order = OrdersList.find(id: order_id)
-        if orders
+        order = OrdersList.find(order_id)
+        if order
             OrdersList.create(customer_id: order.customer_id, hotel_id: order.hotel_id, item_id: order.item_id,
                                 item_quantity: order.item_quantity, status: "Pending", item_name: order.item_name, item_price: order.item_price, total_price: order.total_price)
             render json: {
-                messages: "Successfully order, please wait until the restaurant confirms it!",
-                orders: orders
+                messages: "Order placed successfully, please wait until the restaurant confirms it!"
             }, status: :ok
         else
             render json: {
@@ -147,10 +150,27 @@ class V1::Customers::CustomersController < ApplicationController
 
     def confirm_delivery
         order_id = params[:order_id]
-        OrderList.find(order_id).where(status: "Delivered").update_all(status: "Received")
+        OrdersList.where(id: order_id, status: "Delivered").update_all(status: "Received")
         render json: {
             messages: "Order received by customer, Enjoy your meal!"
         }, status: :ok
+    end
+
+    def fetch_delivered_orders
+        orders = OrdersList.where(customer_id: @customer.id, status: "Delivered")
+        if orders
+            render json: {
+                messages: "Successfully fetched delivered orders!",
+                is_success: true,
+                orders: orders
+            }, status: :ok
+        else
+            render json: {
+                messages: "Unable to fetch delivered orders!",
+                is_success: true,
+                orders: {}
+            }, status: :internal_server_error
+        end
     end
 
     private
